@@ -8,7 +8,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Base64Utils;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +18,7 @@ import com.springproject.shopping.service.AdminService;
 
 import jakarta.servlet.http.HttpSession;
 
+@SuppressWarnings("removal")
 @Controller
 public class AdminController {
 	@Autowired
@@ -44,7 +44,7 @@ public class AdminController {
 			// Successful login
 			//properly setting session
 			session.setAttribute("activeAdmin", admin);
-			session.setMaxInactiveInterval(200);
+			session.setMaxInactiveInterval(200000);
 			model.addAttribute("admin", admin);
 			return "AdminPanel";
 		} else {
@@ -114,6 +114,7 @@ public class AdminController {
 		return "Requests";
 	}
 
+	@SuppressWarnings("deprecation")
 	@GetMapping("/admin")
 	public String admin(Model model, HttpSession session) {
 		//Verifying activeAdmin
@@ -145,5 +146,10 @@ public class AdminController {
 		//Destroying the session
 		session.invalidate();
 		return "AdminLogin";
+	}
+	@GetMapping("/admin/delete")
+	public String delete(@RequestParam int id) {
+		adminService.deleteAdmin(id);
+		return "redirect:/admin";
 	}
 }

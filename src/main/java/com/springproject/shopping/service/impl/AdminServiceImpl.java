@@ -32,4 +32,10 @@ public class AdminServiceImpl implements AdminService {
 		return adminRepo.findAll();
 	}
 
+	@Override
+	public void deleteAdmin(int id) {
+		adminRepo.deleteById(id);
+		
+	}
+
 }
