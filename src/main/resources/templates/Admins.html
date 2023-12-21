@@ -26,6 +26,7 @@
     <tbody>
         <tr th:each="a :${adminList}">
             <td>
+            <!-- Showing the converted base 64 image -->
                 <img th:src="'data:image/jpeg;base64,' + ${a.profilePictureBase64}" alt="Profile Picture" style="width: 50px; height: 50px; border-radius: 50%;" />
             </td>
             <td>[[${a.fullName}]]</td>

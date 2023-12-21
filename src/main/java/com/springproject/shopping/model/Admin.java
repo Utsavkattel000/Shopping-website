@@ -22,6 +22,7 @@ public class Admin {
 	@Lob
 	@Column(columnDefinition = "LONGBLOB")
 	byte[] profilePicture;
+	//defining a variable that should not be in the database to store converted profile picture temporarily
 	@Transient
     private String profilePictureBase64;
 

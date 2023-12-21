@@ -1,6 +1,5 @@
 package com.springproject.shopping.controller;
 
-
 import java.io.IOException;
 import java.util.List;
 
@@ -9,14 +8,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.springproject.shopping.model.Admin;
 import com.springproject.shopping.service.AdminService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class AdminController {
@@ -26,18 +27,24 @@ public class AdminController {
 	private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
 	@GetMapping({ "/", "/adminlogin" })
-	public String getAdminLogin() {
-
+	public String getAdminLogin(HttpSession session) {
+        if(session.getAttribute("activeAdmin") != null) {
+        	session.invalidate();
+        }
 		return "AdminLogin";
 	}
 
 	@PostMapping("/adminlogin")
-	public String postLogin(@RequestParam("email") String email, @RequestParam("password") String password,
-			Model model) {
+	public String postLogin(@RequestParam("email") String email, @RequestParam("password") String password, Model model,
+			//Creating session
+			jakarta.servlet.http.HttpSession session) {
 		// Retrieve the user by email from the database
 		Admin admin = adminService.findAdminByEmail(email);
 		if (admin != null && bCryptPasswordEncoder.matches(password, admin.getPassword())) {
 			// Successful login
+			//properly setting session
+			session.setAttribute("activeAdmin", admin);
+			session.setMaxInactiveInterval(200);
 			model.addAttribute("admin", admin);
 			return "AdminPanel";
 		} else {
@@ -77,9 +84,11 @@ public class AdminController {
 	}
 
 	@GetMapping("/home")
-	public String home() {
-
-		return "AdminPanel";
+	public String home(HttpSession session) {
+       if(session.getAttribute("activeAdmin")!=null) {
+    	   return "AdminPanel";
+       }
+		return "AdminLogin";
 	}
 
 	@GetMapping("/employees")
@@ -104,26 +113,37 @@ public class AdminController {
 	public String requests() {
 		return "Requests";
 	}
-	 @SuppressWarnings({ "deprecation", "removal" })
+
 	@GetMapping("/admin")
-	    public String admin(Model model) {
-	        List<Admin> adminList = adminService.getAllAdmin();
+	public String admin(Model model, HttpSession session) {
+		//Verifying activeAdmin
+		if(session.getAttribute("activeAdmin") !=null) {
+			List<Admin> adminList = adminService.getAllAdmin();
 
-	        // Convert profile pictures to Base64
-	        adminList.forEach(admin -> {
-	            if (admin.getProfilePicture() != null) {
-	                String base64Image = Base64Utils.encodeToString(admin.getProfilePicture());
-	                admin.setProfilePictureBase64(base64Image);
-	            }
-	        });
-
-	        model.addAttribute("adminList", adminList);
-	        return "Admins";
-	    }
+		// Defining for each loop to convert longblob image to normal one
+		adminList.forEach(admin -> {
+			if (admin.getProfilePicture() != null) {
+				// Converting the byte array of profile picture to base64
+				String base64Image = Base64Utils.encodeToString(admin.getProfilePicture());
+				admin.setProfilePictureBase64(base64Image);
+			}
+		});
+		model.addAttribute("adminList", adminList);
+		return "Admins";
+		}
+		return "AdminLogin";
+		
+	}
 
 	@PostMapping("/admin")
 	public String adminList() {
 
 		return "Admins";
+	}
+	@GetMapping("/logout")
+	public String logout(HttpSession session) {
+		//Destroying the session
+		session.invalidate();
+		return "AdminLogin";
 	}
 }
