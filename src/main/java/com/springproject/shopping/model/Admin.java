@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -14,17 +13,21 @@ public class Admin {
 	@Id
 	@GeneratedValue
 	int id;
-	String fullName;
+	String firstName;
+	String lastName;
 	@Column(unique = true)
 	String email;
 	String phone;
 	String password;
-	@Lob
-	@Column(columnDefinition = "LONGBLOB")
-	byte[] profilePicture;
-	//defining a variable that should not be in the database to store converted profile picture temporarily
 	@Transient
-    private String profilePictureBase64;
+	String password2;
+//	@Lob
+//	@Column(columnDefinition = "LONGBLOB")
+//	byte[] profilePicture;
+	// defining a variable that should not be in the database to store converted
+	// profile picture temporarily
+//	@Transient
+//    private String profilePictureBase64;
 
 	public int getId() {
 		return id;
@@ -34,12 +37,20 @@ public class Admin {
 		this.id = id;
 	}
 
-	public String getFullName() {
-		return fullName;
+	public String getFirstName() {
+		return firstName;
 	}
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	public String getEmail() {
@@ -58,14 +69,6 @@ public class Admin {
 		this.password = password;
 	}
 
-	public byte[] getProfilePicture() {
-		return profilePicture;
-	}
-
-	public void setProfilePicture(byte[] profilePicture) {
-		this.profilePicture = profilePicture;
-	}
-
 	public String getPhone() {
 		return phone;
 	}
@@ -74,13 +77,12 @@ public class Admin {
 		this.phone = phone;
 	}
 
-	public String getProfilePictureBase64() {
-		return profilePictureBase64;
+	public String getPassword2() {
+		return password2;
 	}
 
-	public void setProfilePictureBase64(String profilePictureBase64) {
-		this.profilePictureBase64 = profilePictureBase64;
+	public void setPassword2(String password2) {
+		this.password2 = password2;
 	}
-	
 
 }

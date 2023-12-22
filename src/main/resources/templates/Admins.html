@@ -17,8 +17,9 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Profile Picture</th>
-                            <th>Full Name</th>
+                         
+                            <th>First Name</th>
+                            <th>Last Name</th>
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Action</th>
@@ -26,11 +27,9 @@
                     </thead>
                     <tbody>
                         <tr th:each="a : ${adminList}">
-                            <td>
-                                <!-- Showing the converted base 64 image -->
-                                <img th:src="'data:image/jpeg;base64,' + ${a.profilePictureBase64}" alt="Profile Picture" style="width: 50px; height: 50px; border-radius: 50%;" />
-                            </td>
-                            <td>[[${a.fullName}]]</td>
+                           
+                            <td>[[${a.firstName}]]</td>
+                            <td>[[${a.lastName}]]</td>
                             <td>[[${a.email}]]</td>
                             <td>[[${a.phone}]]</td>
                             <td>

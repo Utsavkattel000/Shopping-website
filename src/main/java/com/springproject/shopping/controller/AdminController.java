@@ -1,18 +1,15 @@
 package com.springproject.shopping.controller;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import com.springproject.shopping.model.Admin;
 import com.springproject.shopping.service.AdminService;
 
@@ -61,26 +58,31 @@ public class AdminController {
 	}
 
 	@PostMapping("/adminSignup")
-	public String postSignup(@ModelAttribute Admin admin, @RequestParam("image") MultipartFile imageFile)
+	public String postSignup(@ModelAttribute Admin admin,Model model)
+	// MultipartFile imageFile, @RequestParam("image"))
 	// requestparam and multipart file are used to receive byte data like image to
 	// the server
 	{
 		// Hashing the password
+		if(admin.getPassword().equals(admin.getPassword2())) {
 		String hashedPassword = bCryptPasswordEncoder.encode(admin.getPassword());
 		admin.setPassword(hashedPassword);
 		//
-		byte[] profilePicture;
-		try {
-			profilePicture = imageFile.getBytes();
-			admin.setProfilePicture(profilePicture);
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
+//		byte[] profilePicture;
+//		try {
+//			profilePicture = imageFile.getBytes();
+//			admin.setProfilePicture(profilePicture);
+//		} catch (IOException e) {
+//
+//			e.printStackTrace();
+//		}
 
 		// this sends the data to signup service
 		adminService.adminSignup(admin);
 		return "AdminLogin";
+		}
+		model.addAttribute("error","Passwords do not match");
+         return "AdminSignup";
 	}
 
 	@GetMapping("/home")
@@ -122,13 +124,13 @@ public class AdminController {
 			List<Admin> adminList = adminService.getAllAdmin();
 
 		// Defining for each loop to convert longblob image to normal one
-		adminList.forEach(admin -> {
-			if (admin.getProfilePicture() != null) {
-				// Converting the byte array of profile picture to base64
-				String base64Image = Base64Utils.encodeToString(admin.getProfilePicture());
-				admin.setProfilePictureBase64(base64Image);
-			}
-		});
+//		adminList.forEach(admin -> {
+//			if (admin.getProfilePicture() != null) {
+//				// Converting the byte array of profile picture to base64
+//				String base64Image = Base64Utils.encodeToString(admin.getProfilePicture());
+//				admin.setProfilePictureBase64(base64Image);
+//			}
+//		});
 		model.addAttribute("adminList", adminList);
 		return "Admins";
 		}
@@ -137,9 +139,12 @@ public class AdminController {
 	}
 
 	@PostMapping("/admin")
-	public String adminList() {
+	public String adminList(HttpSession session) {
+		if(session.getAttribute("activeAdmin")!=null) {
+			return "Admins";
+		}
 
-		return "Admins";
+		return "AdminLogin";
 	}
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
@@ -151,5 +156,10 @@ public class AdminController {
 	public String delete(@RequestParam int id) {
 		adminService.deleteAdmin(id);
 		return "redirect:/admin";
+	}
+	@GetMapping("/admin/edit")
+	public String edit() {
+		
+		return "AdminEdit";
 	}
 }
