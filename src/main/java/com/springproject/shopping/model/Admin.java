@@ -17,6 +17,7 @@ public class Admin {
 	String lastName;
 	@Column(unique = true)
 	String email;
+	@Column(unique = true)
 	String phone;
 	String password;
 	@Transient

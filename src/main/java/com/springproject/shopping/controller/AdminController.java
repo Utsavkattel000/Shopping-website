@@ -3,6 +3,7 @@ package com.springproject.shopping.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,19 +53,23 @@ public class AdminController {
 	}
 
 	@GetMapping("/adminSignup")
-	public String getAdminSignup() {
-
+	public String getAdminSignup(HttpSession session) {
+		if(session.getAttribute("activeAdmin") != null) {
+        	session.invalidate();
+        }
 		return "AdminSignup";
 	}
 
 	@PostMapping("/adminSignup")
-	public String postSignup(@ModelAttribute Admin admin,Model model)
+	public String postSignup(@ModelAttribute Admin admin,Model model, @RequestParam String email, @RequestParam String firstName, @RequestParam String lastName, @RequestParam String password, @RequestParam String phone) {
 	// MultipartFile imageFile, @RequestParam("image"))
 	// requestparam and multipart file are used to receive byte data like image to
 	// the server
-	{
+	
 		// Hashing the password
 		if(admin.getPassword().equals(admin.getPassword2())) {
+			try
+			{
 		String hashedPassword = bCryptPasswordEncoder.encode(admin.getPassword());
 		admin.setPassword(hashedPassword);
 		//
@@ -77,12 +82,22 @@ public class AdminController {
 //			e.printStackTrace();
 //		}
 
-		// this sends the data to signup service
-		adminService.adminSignup(admin);
+		// this sends the data to signup service while receiving if and which data already exist in database
+		String dupError= adminService.adminSignup(admin);
+		if(dupError ==null) {
 		return "AdminLogin";
 		}
+		model.addAttribute("dupError", dupError+" already exists");
+		return "AdminSignup";
+		}
+	catch(DataIntegrityViolationException e){
+        // Add error message to the model
+        model.addAttribute("dupError", "Some info you entered already exists, try new one");
+        return "redirect:/adminSignup";
+	}
+	}
 		model.addAttribute("error","Passwords do not match");
-         return "AdminSignup";
+        return "AdminSignup";
 	}
 
 	@GetMapping("/home")
@@ -123,7 +138,7 @@ public class AdminController {
 		if(session.getAttribute("activeAdmin") !=null) {
 			List<Admin> adminList = adminService.getAllAdmin();
 
-		// Defining for each loop to convert longblob image to normal one
+		// Defining for_each loop to convert longblob image to normal one
 //		adminList.forEach(admin -> {
 //			if (admin.getProfilePicture() != null) {
 //				// Converting the byte array of profile picture to base64

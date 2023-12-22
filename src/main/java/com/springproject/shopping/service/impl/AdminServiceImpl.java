@@ -15,10 +15,18 @@ public class AdminServiceImpl implements AdminService {
 	private AdminRepository adminRepo;
 
 	@Override
-	public void adminSignup(Admin admin) {
+	public String adminSignup(Admin admin) {
+
+		if (adminRepo.existsByEmail(admin.getEmail())) {
+			return "Email";
+		}
+		if (adminRepo.existsByPhone(admin.getPhone())) {
+			return "Phone";
+		}
+
 		// this saves the data to the database
 		adminRepo.save(admin);
-
+		return null;
 	}
 
 	@Override
@@ -35,7 +43,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public void deleteAdmin(int id) {
 		adminRepo.deleteById(id);
-		
+
 	}
 
 }
