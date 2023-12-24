@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,25 +27,37 @@ public class AdminController {
 
 	@GetMapping({ "/", "/adminlogin" })
 	public String getAdminLogin(HttpSession session) {
-        if(session.getAttribute("activeAdmin") != null) {
-        	session.invalidate();
-        }
+		if (session.getAttribute("activeAdmin") != null) {
+			session.invalidate();
+		}
 		return "AdminLogin";
 	}
 
 	@PostMapping("/adminlogin")
 	public String postLogin(@RequestParam("email") String email, @RequestParam("password") String password, Model model,
-			//Creating session
-			jakarta.servlet.http.HttpSession session) {
+			// Creating session
+			jakarta.servlet.http.HttpSession session, @RequestParam(name="rememberMe",required=false,defaultValue="false") boolean rememberMe) {
 		// Retrieve the user by email from the database
 		Admin admin = adminService.findAdminByEmail(email);
 		if (admin != null && bCryptPasswordEncoder.matches(password, admin.getPassword())) {
 			// Successful login
-			//properly setting session
+			// properly setting session
 			session.setAttribute("activeAdmin", admin);
-			session.setMaxInactiveInterval(200000);
+			if(rememberMe==false) {
+				session.setMaxInactiveInterval(20);
+			}
+				if (admin.getProfilePicture() != null) {
+					// Converting the byte array of profile picture to base64
+					@SuppressWarnings("deprecation")
+					String base64Image = Base64Utils.encodeToString(admin.getProfilePicture());
+					admin.setProfilePictureBase64(base64Image);
+				
+			}
+			model.addAttribute("fname", admin.getFirstName());
+			model.addAttribute("lname",admin.getLastName());
+			model.addAttribute("profilePicture", admin.getProfilePictureBase64());
 			model.addAttribute("admin", admin);
-			return "AdminPanel";
+			return "Dashboard";
 		} else {
 			// Failed login
 			model.addAttribute("error", "Invalid email or password");
@@ -54,25 +67,26 @@ public class AdminController {
 
 	@GetMapping("/adminSignup")
 	public String getAdminSignup(HttpSession session) {
-		if(session.getAttribute("activeAdmin") != null) {
-        	session.invalidate();
-        }
+		if (session.getAttribute("activeAdmin") != null) {
+			session.invalidate();
+		}
 		return "AdminSignup";
 	}
 
 	@PostMapping("/adminSignup")
-	public String postSignup(@ModelAttribute Admin admin,Model model, @RequestParam String email, @RequestParam String firstName, @RequestParam String lastName, @RequestParam String password, @RequestParam String phone) {
-	// MultipartFile imageFile, @RequestParam("image"))
-	// requestparam and multipart file are used to receive byte data like image to
-	// the server
-	
+	public String postSignup(@ModelAttribute Admin admin, Model model, @RequestParam String email,
+			@RequestParam String firstName, @RequestParam String lastName, @RequestParam String password,
+			@RequestParam String phone) {
+		// MultipartFile imageFile, @RequestParam("image"))
+		// requestparam and multipart file are used to receive byte data like image to
+		// the server
+
 		// Hashing the password
-		if(admin.getPassword().equals(admin.getPassword2())) {
-			try
-			{
-		String hashedPassword = bCryptPasswordEncoder.encode(admin.getPassword());
-		admin.setPassword(hashedPassword);
-		//
+		if (admin.getPassword().equals(admin.getPassword2())) {
+			try {
+				String hashedPassword = bCryptPasswordEncoder.encode(admin.getPassword());
+				admin.setPassword(hashedPassword);
+				//
 //		byte[] profilePicture;
 //		try {
 //			profilePicture = imageFile.getBytes();
@@ -82,29 +96,29 @@ public class AdminController {
 //			e.printStackTrace();
 //		}
 
-		// this sends the data to signup service while receiving if and which data already exist in database
-		String dupError= adminService.adminSignup(admin);
-		if(dupError ==null) {
-		return "AdminLogin";
+				// this sends the data to signup service while receiving if and which data
+				// already exist in database
+				String dupError = adminService.adminSignup(admin);
+				if (dupError == null) {
+					return "AdminLogin";
+				}
+				model.addAttribute("dupError", dupError + " already exists");
+				return "AdminSignup";
+			} catch (DataIntegrityViolationException e) {
+				// Add error message to the model
+				model.addAttribute("dupError", "Some info you entered already exists, try new one");
+				return "redirect:/adminSignup";
+			}
 		}
-		model.addAttribute("dupError", dupError+" already exists");
+		model.addAttribute("error", "Passwords do not match");
 		return "AdminSignup";
-		}
-	catch(DataIntegrityViolationException e){
-        // Add error message to the model
-        model.addAttribute("dupError", "Some info you entered already exists, try new one");
-        return "redirect:/adminSignup";
-	}
-	}
-		model.addAttribute("error","Passwords do not match");
-        return "AdminSignup";
 	}
 
 	@GetMapping("/home")
 	public String home(HttpSession session) {
-       if(session.getAttribute("activeAdmin")!=null) {
-    	   return "AdminPanel";
-       }
+		if (session.getAttribute("activeAdmin") != null) {
+			return "AdminPanel";
+		}
 		return "AdminLogin";
 	}
 
@@ -134,11 +148,11 @@ public class AdminController {
 	@SuppressWarnings("deprecation")
 	@GetMapping("/admin")
 	public String admin(Model model, HttpSession session) {
-		//Verifying activeAdmin
-		if(session.getAttribute("activeAdmin") !=null) {
+		// Verifying activeAdmin
+		if (session.getAttribute("activeAdmin") != null) {
 			List<Admin> adminList = adminService.getAllAdmin();
 
-		// Defining for_each loop to convert longblob image to normal one
+			// Defining for_each loop to convert longblob image to normal one
 //		adminList.forEach(admin -> {
 //			if (admin.getProfilePicture() != null) {
 //				// Converting the byte array of profile picture to base64
@@ -146,35 +160,38 @@ public class AdminController {
 //				admin.setProfilePictureBase64(base64Image);
 //			}
 //		});
-		model.addAttribute("adminList", adminList);
-		return "Admins";
+			model.addAttribute("adminList", adminList);
+			return "Admins";
 		}
 		return "AdminLogin";
-		
+
 	}
 
 	@PostMapping("/admin")
 	public String adminList(HttpSession session) {
-		if(session.getAttribute("activeAdmin")!=null) {
+		if (session.getAttribute("activeAdmin") != null) {
 			return "Admins";
 		}
 
 		return "AdminLogin";
 	}
+
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
-		//Destroying the session
+		// Destroying the session
 		session.invalidate();
 		return "AdminLogin";
 	}
+
 	@GetMapping("/admin/delete")
 	public String delete(@RequestParam int id) {
 		adminService.deleteAdmin(id);
 		return "redirect:/admin";
 	}
+
 	@GetMapping("/admin/edit")
 	public String edit() {
-		
+
 		return "AdminEdit";
 	}
 }

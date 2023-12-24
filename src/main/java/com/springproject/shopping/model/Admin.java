@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -22,13 +23,13 @@ public class Admin {
 	String password;
 	@Transient
 	String password2;
-//	@Lob
-//	@Column(columnDefinition = "LONGBLOB")
-//	byte[] profilePicture;
-	// defining a variable that should not be in the database to store converted
+	@Lob
+	@Column(columnDefinition = "LONGBLOB")
+	byte[] profilePicture;
+//	 defining a variable that should not be in the database to store converted
 	// profile picture temporarily
-//	@Transient
-//    private String profilePictureBase64;
+	@Transient
+    private String profilePictureBase64;
 
 	public int getId() {
 		return id;
@@ -85,5 +86,22 @@ public class Admin {
 	public void setPassword2(String password2) {
 		this.password2 = password2;
 	}
+
+	public byte[] getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(byte[] profilePicture) {
+		this.profilePicture = profilePicture;
+	}
+
+	public String getProfilePictureBase64() {
+		return profilePictureBase64;
+	}
+
+	public void setProfilePictureBase64(String profilePictureBase64) {
+		this.profilePictureBase64 = profilePictureBase64;
+	}
+	
 
 }
