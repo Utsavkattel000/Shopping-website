@@ -16,7 +16,7 @@
 			<div class="login-left">
 				<div class="login-left-box">
 					<h2 class="login-left-head">Sign Up</h2>
-					<form action="/adminSignup" method="post">
+					<form action="/user-signup" method="post">
 						<div class="login-form">
 						<p th:if="${dupError}" style="color: red" th:text="${dupError}"></p>
 							<div class="sign-up-names">
@@ -76,7 +76,10 @@
 							</button>
 						</div>
 						<div class="login-left-notice">
-							Already have an account? <a href="/adminlogin">Login</a>
+							Already have an account? <a href="/user-login">Login</a>
+						</div>
+						<div class="login-left-notice">
+							Wanna be our business partner? <a href="/seller-signup">Click here</a>
 						</div>
 					</form>
 				</div>
