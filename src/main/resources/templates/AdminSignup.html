@@ -16,7 +16,7 @@
 			<div class="login-left">
 				<div class="login-left-box">
 					<h2 class="login-left-head">Sign Up</h2>
-					<form action="/seller-signup" method="post">
+					<form action="/adminSignup" method="post">
 						<div class="login-form">
 						<p th:if="${dupError}" style="color: red" th:text="${dupError}"></p>
 							<div class="sign-up-names">
@@ -25,14 +25,14 @@
 										class="form-control form-login sign-up-border me-4 input-user-box"
 										aria-label="Sizing example input"
 										aria-describedby="inputGroup-sizing-sm"
-										placeholder="Company Name" name="companyName" required />
+										placeholder="First Name" name="firstName" required />
 								</div>
 								<div class="input-group input-group-sm">
 									<input type="text"
 										class="form-control form-login sign-up-border me-4 input-user-box"
 										aria-label="Sizing example input"
 										aria-describedby="inputGroup-sizing-sm"
-										placeholder="Owner Name" name="ownerName" required />
+										placeholder="Last Name" name="lastName" required />
 								</div>
 							</div>
 							
@@ -40,24 +40,16 @@
 								<input type="email"
 									class="form-control form-login remove-border-box input-user-box"
 									aria-label="Sizing example input"
-									aria-describedby="inputGroup-sizing-sm" placeholder="Company E-mail "
+									aria-describedby="inputGroup-sizing-sm" placeholder="E-mail "
 									name="email" required />
-							</div>
-							<div class="input-group input-group-sm mb-3 mt-5">
-								<input type="email"
-									class="form-control form-login remove-border-box input-user-box"
-									aria-label="Sizing example input"
-									aria-describedby="inputGroup-sizing-sm" placeholder="Owner E-mail "
-									name="ownerEmail" required />
 							</div>
 							<div class="input-group input-group-sm mb-3 mt-5">
 								<input type="text"
 									class="form-control form-login remove-border-box input-user-box"
 									aria-label="Sizing example input"
-									aria-describedby="inputGroup-sizing-sm" placeholder="Company Number"
+									aria-describedby="inputGroup-sizing-sm" placeholder="Phone"
 									name="phone" required />
 							</div>
-							
 							<p th:if="${error}" style="color: red" th:text="${error}"></p>
 							<div class="input-group input-group-sm mb-3 mt-5">
 								<input type="password"
@@ -77,6 +69,31 @@
 									name="password2" /> <i class="fa-solid fa-eye eye-btn"
 									id="togglePassword2"></i>
 							</div>
+							  <div class="input-group input-group-sm mb-3 mt-5">
+						                <div class="form-check">
+						                  <input
+						                    class="form-check-input"
+						                    type="radio"
+						                    name="flexRadioDefault"
+						                    id="flexRadioDefault1"
+						                  />
+						                  <label class="form-check-label" for="flexRadioDefault1">
+						                    Employee
+						                  </label>
+						                </div>
+						                <div class="form-check ms-4">
+						                  <input
+						                    class="form-check-input"
+						                    type="radio"
+						                    name="flexRadioDefault"
+						                    id="flexRadioDefault2"
+						                    checked
+						                  />
+						                  <label class="form-check-label" for="flexRadioDefault2">
+						                    Seller
+						                  </label>
+						                </div>
+						           </div>
 						</div>
 						<div class="btn-login-left">
 							<button type="submit" class="btn btn-login-page">
@@ -84,10 +101,7 @@
 							</button>
 						</div>
 						<div class="login-left-notice">
-							Already have a seller account? <a href="/user-login">Login</a>
-						</div>
-						<div class="login-left-notice">
-							Not a Seller? <a href="/user-signup">Click here</a>
+							Already have an account? <a href="/adminlogin">Login</a>
 						</div>
 					</form>
 				</div>

@@ -35,12 +35,12 @@ public class SellerController {
 				// already exist in database
 				String dupError = sellerService.sellerSignup(seller);
 				if (dupError == null) {
-					return "sellerLogin";
+					return "userLogin";
 				}
 				// Add specific error messege this way cause i was not able to extract that
 				// information from exception
 				model.addAttribute("dupError", dupError + " already exists");
-				return "SellerSignup";
+				return "sellerSignup";
 			} catch (DataIntegrityViolationException e) {
 				// Add error message to the model
 				model.addAttribute("dupError", "Some info you entered already exists, try new one");
@@ -53,19 +53,27 @@ public class SellerController {
 	@GetMapping("/seller-login")
 	public String sellerLogin() {
 		
-		return "sellerLogin";
+		return "userLogin";
 	}
 	@PostMapping("seller-login")
-	public String postSellerLogin(Model model,@RequestParam String email,@RequestParam String password) {
+	public String postSellerLogin(Model model,@RequestParam String email,@RequestParam String password, @RequestParam String role) {
+		if(role.equals("seller")) {
 		Seller seller= sellerService.findSellerByEmail(email);
-		if(sellerService.verifyPassword(password, seller, encoder)) {
+		if(seller !=null && sellerService.verifyPassword(password, seller, encoder)) {
 			 
 			return "sellerDashboard";
 		}
 		
 		
-		
-		return "";
+		model.addAttribute("error", "Invalid email or password");
+		return "userLogin";
 	}
-
+	model.addAttribute("error", "Invalid role. Please allow JavaScript.");
+	return "userLogin";
+	}
+	@GetMapping("/error")
+	public String error(Model model) {
+		model.addAttribute("error", "Something is not right please try again");
+		return "userLogin";
+	}
 }

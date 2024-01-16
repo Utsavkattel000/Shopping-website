@@ -31,9 +31,9 @@ public class UserController {
 	}
 
 	@PostMapping("/user-login")
-	public String postLogin(@RequestParam("email") String email, @RequestParam("password") String password, Model model,
-			jakarta.servlet.http.HttpSession session,
-			@RequestParam(name = "rememberMe", required = false, defaultValue = "false") boolean rememberMe) {
+	public String postLogin(@RequestParam("email") String email, @RequestParam("password") String password, Model model,jakarta.servlet.http.HttpSession session, @RequestParam(name = "rememberMe", required = false, defaultValue = "false") boolean rememberMe, @RequestParam("role") String role) {
+		
+		if(role.equals("user")) {
 		User user = userService.findUserByEmail(email);
 		if (userService.verifyPassword(password, user, bCryptPasswordEncoder) != true) {
 			model.addAttribute("error", "Invalid email or password");
@@ -45,6 +45,9 @@ public class UserController {
 			} 
 			return "redirect:/user-login";
 		}
+		}
+		model.addAttribute("error", "Invalid role. Please allow JavaScript.");
+		return "userLogin";
 	}
 
 	public void handleSuccessfullLogin(User user, jakarta.servlet.http.HttpSession session, boolean rememberMe,

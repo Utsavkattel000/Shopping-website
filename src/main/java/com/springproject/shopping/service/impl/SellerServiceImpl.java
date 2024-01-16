@@ -48,7 +48,7 @@ public class SellerServiceImpl implements SellerService {
 
 	@Override
 	public boolean verifyPassword(String password, Seller seller, BCryptPasswordEncoder encoder) {
-		if(seller !=null & encoder.matches(password, seller.getPassword())){
+		if(seller !=null && encoder.matches(password, seller.getPassword())){
 			return true;
 		} else {
 		return false;
