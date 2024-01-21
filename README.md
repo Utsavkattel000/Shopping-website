@@ -15,4 +15,5 @@ This project is currently under development and is not yet complete. It is a hob
 The main contributors of this project are:
 
 Utsav Kattel - Backend developer and project owner
+
 Mandip Bhattarai - Frontend developer and collaborator
